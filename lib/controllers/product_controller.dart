@@ -1,3 +1,4 @@
+//lib/controllers/product_controller.dart
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';

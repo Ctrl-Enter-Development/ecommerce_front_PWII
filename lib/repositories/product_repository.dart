@@ -1,3 +1,4 @@
+//lib/repositories/product_repository.dart
 import '../models/product.dart';
 
 class ProductRepository {

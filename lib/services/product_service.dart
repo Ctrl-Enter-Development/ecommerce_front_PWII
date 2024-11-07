@@ -1,3 +1,4 @@
+//lib/services/product_service.dart
 import '../models/product.dart';
 import '../repositories/product_repository.dart';
 
