@@ -6,8 +6,10 @@ import 'controllers/category_controller.dart';
 import 'controllers/subcategory_controller.dart';
 import 'controllers/user_controller.dart';
 import 'controllers/role_controller.dart';
+import 'controllers/login_controller.dart';
 import 'screens/product_list_screen.dart'; 
 import 'widgets/app_scaffold.dart';
+import 'screens/login_screen.dart';
 void main() {
   runApp(
     MultiProvider(
@@ -17,6 +19,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => SubCategoryController()),
         ChangeNotifierProvider(create: (_) => UserController()),
         ChangeNotifierProvider(create: (_) => RoleController()),
+        ChangeNotifierProvider(create: (_) => LoginController()),
+
       ],
       child: MyApp(),
     ),
@@ -31,9 +35,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AppScaffold(
-        bodyContent: ProductListScreen(),
-      ),
+        home: LoginScreen(),
     );
   }
 }

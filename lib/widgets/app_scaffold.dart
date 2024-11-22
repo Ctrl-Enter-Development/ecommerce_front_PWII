@@ -6,6 +6,7 @@ import 'package:ecommerce_front/screens/subcategory_list_screen.dart';
 import 'package:ecommerce_front/screens/user_list_screen.dart';
 import 'package:ecommerce_front/screens/role_list_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:ecommerce_front/screens/login_screen.dart';
 
 class AppScaffold extends StatelessWidget {
  final Widget bodyContent;
@@ -24,12 +25,17 @@ class AppScaffold extends StatelessWidget {
                backgroundImage: AssetImage("assets/images/avatar.png"),
              ),
              SizedBox(width: 8),
-             PopupMenuButton<String>(
-               onSelected: (value) {
-                 if (value == 'logout') {
-                   print("Logout acionado");
-                 }
-               },
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'logout') {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(),
+                      ),
+                    );
+                  }
+                },
                itemBuilder: (BuildContext context) {
                  return [
                    PopupMenuItem<String>(
