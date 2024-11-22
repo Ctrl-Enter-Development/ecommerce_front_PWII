@@ -16,17 +16,17 @@ class _AddRolePopupState extends State<AddRolePopup> {
  @override
  Widget build(BuildContext context) {
    return AlertDialog(
-     title: Text('Adicionar Papel'),
+     title: Text('Adicionar Perfil'),
      content: Form(
        key: _formKey,
        child: Column(
          mainAxisSize: MainAxisSize.min,
          children: [
            TextFormField(
-             decoration: InputDecoration(labelText: 'Nome do Papel'),
+             decoration: InputDecoration(labelText: 'Nome do Perfil'),
              validator: (value) {
                if (value == null || value.isEmpty) {
-                 return 'Informe o nome do papel';
+                 return 'Informe o nome do Perfil';
                }
                return null;
              },

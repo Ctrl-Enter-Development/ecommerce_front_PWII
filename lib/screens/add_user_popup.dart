@@ -54,7 +54,7 @@ class _AddUserPopupState extends State<AddUserPopup> {
              },
            ),
            DropdownButtonFormField<Role>(
-             decoration: InputDecoration(labelText: 'Papel'),
+             decoration: InputDecoration(labelText: 'Perfil'),
              items: roles.map((role) {
                return DropdownMenuItem<Role>(
                  value: role,
@@ -68,7 +68,7 @@ class _AddUserPopupState extends State<AddUserPopup> {
              },
              validator: (value) {
                if (value == null) {
-                 return 'Selecione um papel';
+                 return 'Selecione um Perfil';
                }
                return null;
              },

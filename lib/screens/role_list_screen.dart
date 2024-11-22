@@ -16,7 +16,7 @@ class RoleListScreen extends StatelessWidget {
        Consumer<RoleController>(
          builder: (context, controller, child) {
            if (controller.roles.isEmpty) {
-             return const Center(child: Text("Nenhum papel cadastrado"));
+             return const Center(child: Text("Nenhum Perfil cadastrado"));
            }
            return ListView.builder(
              itemCount: controller.roles.length,
