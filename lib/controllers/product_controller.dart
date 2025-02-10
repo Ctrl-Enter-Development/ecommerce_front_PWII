@@ -1,14 +1,15 @@
-//lib/controllers/product_controller.dart
+// lib/controllers/product_controller.dart
+import 'dart:typed_data'; 
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
+
 class ProductController extends ChangeNotifier {
   final ProductService _service = ProductService();
   List<Product> _products = [];
 
   List<Product> get products => _products;
 
-  // Função para carregar os produtos
   Future<void> loadProducts() async {
     try {
       _products = await _service.getProducts();
@@ -18,18 +19,15 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  // Função para adicionar um novo produto
-  Future<void> addProduct(Product product) async {
+  Future<void> addProductWithFile(Product product, {Uint8List? fileBytes, String? fileName}) async {
     try {
-      final addedProduct = await _service.addProduct(product);
+      final addedProduct = await _service.createProduct(product, fileBytes: fileBytes, fileName: fileName);
       _products.add(addedProduct);
       notifyListeners();
     } catch (e) {
       print('Error adding product: $e');
     }
   }
-
-  // Função para remover um produto
 
   Future<void> removeProduct(int id) async {
     try {
@@ -41,4 +39,3 @@ class ProductController extends ChangeNotifier {
     }
   }
 }
-

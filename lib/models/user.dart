@@ -1,17 +1,20 @@
 // lib/models/user.dart
 import 'role.dart';
 
+// lib/models/user.dart
+import 'role.dart';
+
 class User {
   final int id;
   final String userName;
-  final String password;
+  final String? password; 
   final int roleId;
-  final String role; // agora é String
+  final String role;
 
   User({
     required this.id,
     required this.userName,
-    required this.password,
+    this.password, 
     required this.roleId,
     required this.role,
   });
@@ -20,7 +23,7 @@ class User {
     return User(
       id: json['id'] as int,
       userName: json['userName'] as String,
-      password: json['password'] as String,
+      password: json['password'] as String?, 
       roleId: json['roleId'] as int,
       role: json['role'] as String,
     );

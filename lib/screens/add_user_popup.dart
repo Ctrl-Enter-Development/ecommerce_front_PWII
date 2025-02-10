@@ -20,7 +20,6 @@ class _AddUserPopupState extends State<AddUserPopup> {
   @override
   void initState() {
     super.initState();
-    // Carrega as roles se ainda não estiverem carregadas
     Provider.of<RoleController>(context, listen: false).loadRoles();
   }
 

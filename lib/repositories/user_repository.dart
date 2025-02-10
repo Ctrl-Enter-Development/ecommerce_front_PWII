@@ -1,7 +1,6 @@
-// lib/repositories/user_repository.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:get_storage/get_storage.dart';
+import 'package:ecommerce_front/utils/app_storage.dart';
 import '../models/user.dart';
 
 class UserRepository {
@@ -9,7 +8,7 @@ class UserRepository {
 
   Future<List<User>> fetchUsers() async {
     final url = Uri.parse('$_baseUrl/user_repository');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.get(
       url,
       headers: {
@@ -27,7 +26,7 @@ class UserRepository {
 
   Future<User> createUser(User user) async {
     final url = Uri.parse('$_baseUrl/user_repository');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.post(
       url,
       headers: {
@@ -38,7 +37,6 @@ class UserRepository {
         "userName": user.userName,
         "password": user.password,
         "roleId": user.roleId,
-        // Se necessário, envie o nome do perfil:
         "role": user.role,
       }),
     );
@@ -52,7 +50,7 @@ class UserRepository {
 
   Future<void> deleteUser(int id) async {
     final url = Uri.parse('$_baseUrl/user_repository/$id');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.delete(
       url,
       headers: {

@@ -1,7 +1,6 @@
-// lib/repositories/category_repository.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:get_storage/get_storage.dart';
+import 'package:ecommerce_front/utils/app_storage.dart';
 import '../models/category.dart';
 
 class CategoryRepository {
@@ -9,7 +8,7 @@ class CategoryRepository {
 
   Future<List<Category>> fetchCategories() async {
     final url = Uri.parse('$_baseUrl/category_repository');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.get(
       url,
       headers: {
@@ -27,7 +26,7 @@ class CategoryRepository {
 
   Future<Category> createCategory(Category category) async {
     final url = Uri.parse('$_baseUrl/category_repository');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.post(
       url,
       headers: {
@@ -48,7 +47,7 @@ class CategoryRepository {
 
   Future<void> deleteCategory(int id) async {
     final url = Uri.parse('$_baseUrl/category_repository/$id');
-    final token = await GetStorage().read('authToken');
+    final token = AppStorage.instance.token;
     final response = await http.delete(
       url,
       headers: {

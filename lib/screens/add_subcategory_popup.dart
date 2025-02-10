@@ -18,7 +18,6 @@ class _AddSubCategoryPopupState extends State<AddSubCategoryPopup> {
   @override
   void initState() {
     super.initState();
-    // Carrega as categorias se ainda não estiverem carregadas
     Provider.of<CategoryController>(context, listen: false).loadCategories();
   }
 

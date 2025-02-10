@@ -1,7 +1,8 @@
 // lib/repositories/product_repository.dart
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:get_storage/get_storage.dart';
+import 'dart:typed_data'; // Import necessário para Uint8List
+import 'package:http/http.dart' as http;
+import 'package:ecommerce_front/utils/app_storage.dart';
 import '../models/product.dart';
 
 class ProductRepository {
@@ -9,15 +10,11 @@ class ProductRepository {
 
   Future<List<Product>> fetchProducts() async {
     final url = Uri.parse('$_baseUrl/product_repository');
-    final token = await GetStorage().read('authToken');
-    final response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
-
+    final token = AppStorage.instance.token;
+    final response = await http.get(url, headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    });
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       return data.map((json) => Product.fromJson(json)).toList();
@@ -25,41 +22,49 @@ class ProductRepository {
     throw Exception("Erro ao buscar produtos");
   }
 
-  Future<Product> createProduct(Product product) async {
-    final url = Uri.parse('$_baseUrl/product_repository');
-    final token = await GetStorage().read('authToken');
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({
-        "name": product.name,
-        "price": product.price,
-        "subCategoryId": product.subCategoryId,
-        // Se a API necessitar do campo "subCategory" ou outros detalhes, adicione-os aqui.
-      }),
-    );
+Future<Product> createProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
+  final uri = Uri.parse('$_baseUrl/product_repository'); 
+  final token = AppStorage.instance.token;
+  final request = http.MultipartRequest("POST", uri);
+  request.headers['Authorization'] = "Bearer $token";
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return Product.fromJson(data);
-    }
-    throw Exception("Erro ao criar produto");
+  request.fields['name'] = product.name;
+  request.fields['price'] = product.price.toString();
+  request.fields['subCategoryId'] = product.subCategoryId.toString();
+  request.fields['subCategory'] = product.subCategory;
+  request.fields['description'] = product.description;
+
+  if (fileBytes != null && fileName != null) {
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'url', 
+        fileBytes,
+        filename: fileName,
+      ),
+    );
+  } else {
+ 
+    request.fields['url'] = "";
   }
+
+  final streamedResponse = await request.send();
+  final response = await http.Response.fromStream(streamedResponse);
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return Product.fromJson(data);
+  }
+  throw Exception("Erro ao criar produto");
+}
+
 
   Future<void> deleteProduct(int id) async {
     final url = Uri.parse('$_baseUrl/product_repository/$id');
-    final token = await GetStorage().read('authToken');
-    final response = await http.delete(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
-
+    final token = AppStorage.instance.token;
+    final response = await http.delete(url, headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    });
     if (response.statusCode != 200) {
       throw Exception("Erro ao deletar produto");
     }

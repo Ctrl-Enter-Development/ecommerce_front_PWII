@@ -1,7 +1,6 @@
-// lib/repositories/login_repository.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:get_storage/get_storage.dart';
+import 'package:ecommerce_front/utils/app_storage.dart';
 
 class LoginRepository {
   final String _baseUrl = "https://x8ki-letl-twmt.n7.xano.io/api:tPOO5Nin";
@@ -16,16 +15,14 @@ class LoginRepository {
 
       final response = await http.post(
         url,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
         body: body,
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['authToken'] != null) {
-          await GetStorage().write('authToken', data['authToken']);
+          AppStorage.instance.setToken(data['authToken']);
           return true;
         }
       } else {

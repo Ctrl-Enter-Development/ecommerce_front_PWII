@@ -4,6 +4,7 @@ import 'package:ecommerce_front/widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/login_controller.dart';
+import '../controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,12 +18,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<LoginController>(context, listen: false);
+    final loginController = Provider.of<LoginController>(context, listen: false);
 
     return Scaffold(
       body: Stack(
         children: [
-          // Imagem de fundo
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -31,7 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          // Card de login
           Center(
             child: Container(
               width: 350,
@@ -45,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo
                     Image.asset("assets/images/logo.png", height: 60),
                     SizedBox(height: 16),
                     Text(
@@ -57,7 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     SizedBox(height: 16),
-                    // Campo de usuário
                     TextFormField(
                       controller: _usernameController,
                       style: TextStyle(color: Colors.white),
@@ -76,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     SizedBox(height: 16),
-                    // Campo de senha
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
@@ -99,15 +95,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          final success = await controller.login(
+                          final success = await loginController.login(
                             _usernameController.text,
                             _passwordController.text,
                           );
                           if (success) {
+                            await Provider.of<AuthController>(context, listen: false)
+                                .fetchUserData();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("Login realizado com sucesso!")),
+                              SnackBar(content: Text("Login realizado com sucesso!")),
                             );
                             Navigator.pushReplacement(
                               context,
@@ -117,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             );
-                            // Navegue para outra tela (exemplo: HomeScreen)
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Credenciais inválidas!")),

@@ -4,7 +4,7 @@ class SubCategory {
   final int id;
   final String name;
   final int categoryId;
-  final String category; // Agora é uma String
+  final String category;
 
   SubCategory({
     required this.id,

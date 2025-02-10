@@ -1,12 +1,17 @@
 // lib/widgets/app_scaffold.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:get_storage/get_storage.dart';
+
+import 'package:ecommerce_front/screens/login_screen.dart';
 import 'package:ecommerce_front/screens/category_list_screen.dart';
 import 'package:ecommerce_front/screens/product_list_screen.dart';
 import 'package:ecommerce_front/screens/subcategory_list_screen.dart';
 import 'package:ecommerce_front/screens/user_list_screen.dart';
 import 'package:ecommerce_front/screens/role_list_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:ecommerce_front/screens/login_screen.dart';
-import 'package:get_storage/get_storage.dart'; // Importa GetStorage
+import '../screens/cart_screen.dart';
+import '../screens/order_screen.dart';
+import 'package:ecommerce_front/controllers/auth_controller.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget bodyContent;
@@ -15,7 +20,10 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final storage = GetStorage(); // Instância do GetStorage
+    final storage = GetStorage();
+    final authController = Provider.of<AuthController>(context);
+    final userName = authController.user?.userName ?? "Usuário";
+    final userRole = authController.user?.role ?? "Admin"; 
 
     return Scaffold(
       appBar: AppBar(
@@ -28,12 +36,10 @@ class AppScaffold extends StatelessWidget {
               ),
               SizedBox(width: 8),
               PopupMenuButton<String>(
-                onSelected: (value) async {
+                onSelected: (value) {
                   if (value == 'logout') {
-                    // Remove o token do armazenamento
-                    await storage.remove('authToken');
-                    
-                    // Redireciona para a tela de login
+                    storage.remove('authToken');
+                    Provider.of<AuthController>(context, listen: false).clearUser();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -52,7 +58,7 @@ class AppScaffold extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text("Nome do Usuário"),
+                  child: Text(userName),
                 ),
               ),
             ],
@@ -70,66 +76,98 @@ class AppScaffold extends StatelessWidget {
               ),
               decoration: BoxDecoration(color: Colors.blue),
             ),
-            ListTile(
-              title: Text('Produtos'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AppScaffold(bodyContent: ProductListScreen()),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Categorias'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AppScaffold(bodyContent: CategoryListScreen()),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Subcategorias'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AppScaffold(bodyContent: SubCategoryListScreen()),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Usuários'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AppScaffold(bodyContent: UserListScreen()),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Perfil'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AppScaffold(bodyContent: RoleListScreen()),
-                  ),
-                );
-              },
-            ),
+            if (userRole == "Admin") ...[
+              ListTile(
+                title: Text('Produtos'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: ProductListScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Categorias'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: CategoryListScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Subcategorias'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: SubCategoryListScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Usuários'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: UserListScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Perfil'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: RoleListScreen()),
+                    ),
+                  );
+                },
+              ),
+            ],
+            if (userRole == "Client") ...[
+              ListTile(
+                title: Text('Produtos'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: ProductListScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Carrinho'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: CartScreen()),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Pedidos'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppScaffold(bodyContent: OrderScreen()),
+                    ),
+                  );
+                },
+              ),
+            ],
           ],
         ),
       ),
