@@ -14,7 +14,7 @@ class UserCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(user.userName),
-        subtitle: Text(user.role.name),
+        subtitle: Text(user.role),
         trailing: IconButton(
           icon: Icon(Icons.delete),
           onPressed: () {

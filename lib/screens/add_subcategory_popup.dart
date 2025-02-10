@@ -16,6 +16,13 @@ class _AddSubCategoryPopupState extends State<AddSubCategoryPopup> {
   Category? _selectedCategory;
 
   @override
+  void initState() {
+    super.initState();
+    // Carrega as categorias se ainda não estiverem carregadas
+    Provider.of<CategoryController>(context, listen: false).loadCategories();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final categories = Provider.of<CategoryController>(context).categories;
 
@@ -77,7 +84,7 @@ class _AddSubCategoryPopupState extends State<AddSubCategoryPopup> {
                 id: 0,
                 name: _name,
                 categoryId: _selectedCategory!.id,
-                category: _selectedCategory!,
+                category: _selectedCategory!.name,
               );
               Provider.of<SubCategoryController>(context, listen: false)
                   .addSubCategory(newSubCategory);

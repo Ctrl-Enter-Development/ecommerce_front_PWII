@@ -1,40 +1,66 @@
-// lib/repositories/sub_category_repository.dart
+// lib/repositories/subcategory_repository.dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 import '../models/subcategory.dart';
 
 class SubCategoryRepository {
-  final List<SubCategory> _subCategories = [];
-  int _nextId = 1; // Variável para acompanhar o próximo ID disponível
+  final String _baseUrl = "https://x8ki-letl-twmt.n7.xano.io/api:tPOO5Nin";
 
-  // Simula a latência de uma chamada a um backend
-  Future<void> _simulateNetworkDelay() async {
-    await Future.delayed(
-        Duration(milliseconds: 10)); // Simula um atraso de 10 milisegundos
-  }
-
-  // Busca todas as subcategorias, incluindo suas categorias
   Future<List<SubCategory>> fetchSubCategories() async {
-    return List.from(
-        _subCategories); // Retorna uma cópia da lista de subcategorias
-  }
-
-  // Função para criar uma nova subcategoria
-  Future<SubCategory> createSubCategory(SubCategory subCategory) async {
-    await _simulateNetworkDelay(); // Aguarda o atraso simulado
-    subCategory.id = _nextId++; // Atribui o próximo ID e incrementa a variável
-    _subCategories.add(subCategory);
-
-    // Retorna a subcategoria com a categoria associada
-    return SubCategory(
-      id: subCategory.id,
-      name: subCategory.name,
-      categoryId: subCategory.categoryId,
-      category: subCategory.category,
+    final url = Uri.parse('$_baseUrl/sub_category_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((json) => SubCategory.fromJson(json)).toList();
+    }
+    throw Exception("Erro ao buscar subcategorias");
   }
 
-  // Remove uma subcategoria da lista pelo ID
+  Future<SubCategory> createSubCategory(SubCategory subCategory) async {
+    final url = Uri.parse('$_baseUrl/sub_category_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "name": subCategory.name,
+        "categoryId": subCategory.categoryId,
+        // Caso seja necessário enviar detalhes da categoria, adicione-os.
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return SubCategory.fromJson(data);
+    }
+    throw Exception("Erro ao criar subcategoria");
+  }
+
   Future<void> deleteSubCategory(int id) async {
-    await _simulateNetworkDelay(); // Aguarda o atraso simulado
-    _subCategories.removeWhere((subCategory) => subCategory.id == id);
+    final url = Uri.parse('$_baseUrl/sub_category_repository/$id');
+    final token = await GetStorage().read('authToken');
+    final response = await http.delete(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Erro ao deletar subcategoria");
+    }
   }
 }

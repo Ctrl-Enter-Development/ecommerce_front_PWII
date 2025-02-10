@@ -19,8 +19,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
 
   @override
   Widget build(BuildContext context) {
-    final subCategories =
-        Provider.of<SubCategoryController>(context).subCategories;
+    final subCategories = Provider.of<SubCategoryController>(context).subCategories;
 
     return AlertDialog(
       title: Text('Adicionar Produto'),
@@ -89,12 +88,13 @@ class _AddProductPopupState extends State<AddProductPopup> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
+              // Cria o produto usando o id da subcategoria e o nome da subcategoria
               final newProduct = Product(
                 id: 0,
                 name: _name,
                 price: _price,
                 subCategoryId: _selectedSubCategory!.id,
-                subCategory: _selectedSubCategory!,
+                subCategory: _selectedSubCategory!.name,
               );
               Provider.of<ProductController>(context, listen: false)
                   .addProduct(newProduct);

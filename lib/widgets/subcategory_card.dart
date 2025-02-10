@@ -15,7 +15,7 @@ class SubCategoryCard extends StatelessWidget {
       child: ListTile(
         title: Text(subCategory.name),
         subtitle: Text(
-          'Categoria: ${subCategory.category.name}',
+          'Categoria: ${subCategory.category}',
           style: TextStyle(color: Colors.grey[600]),
         ),
         trailing: IconButton(

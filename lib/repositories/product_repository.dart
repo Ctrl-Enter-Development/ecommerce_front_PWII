@@ -1,40 +1,67 @@
-//lib/repositories/product_repository.dart
-import 'package:ecommerce_front/models/product.dart';
+// lib/repositories/product_repository.dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
+import '../models/product.dart';
 
 class ProductRepository {
-  final List<Product> _products = [];
-  int _nextId = 1; // Variável para acompanhar o próximo ID disponível
+  final String _baseUrl = "https://x8ki-letl-twmt.n7.xano.io/api:tPOO5Nin";
 
-  // Simula a latência de uma chamada a um backend
-  Future<void> _simulateNetworkDelay() async {
-    await Future.delayed(
-        Duration(milliseconds: 10)); // Simula um atraso de 10 milisegundos
-  }
-
-  // Busca todos os produtos
   Future<List<Product>> fetchProducts() async {
-    return List.from(_products); // Retorna uma cópia da lista de produtos
-  }
-
-  // Função para criar um novo produto
-  Future<Product> createProduct(Product product) async {
-    await _simulateNetworkDelay(); // Aguarda o atraso simulado
-    product.id = _nextId++; // Atribui o próximo ID e incrementa a variável
-    _products.add(product);
-
-    // Retorna o produto com a subcategoria associada
-    return Product(
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      subCategoryId: product.subCategoryId,
-      subCategory: product.subCategory,
+    final url = Uri.parse('$_baseUrl/product_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((json) => Product.fromJson(json)).toList();
+    }
+    throw Exception("Erro ao buscar produtos");
   }
 
-  // Remove um produto da lista pelo ID
+  Future<Product> createProduct(Product product) async {
+    final url = Uri.parse('$_baseUrl/product_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "name": product.name,
+        "price": product.price,
+        "subCategoryId": product.subCategoryId,
+        // Se a API necessitar do campo "subCategory" ou outros detalhes, adicione-os aqui.
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Product.fromJson(data);
+    }
+    throw Exception("Erro ao criar produto");
+  }
+
   Future<void> deleteProduct(int id) async {
-    await _simulateNetworkDelay(); // Aguarda o atraso simulado
-    _products.removeWhere((product) => product.id == id);
+    final url = Uri.parse('$_baseUrl/product_repository/$id');
+    final token = await GetStorage().read('authToken');
+    final response = await http.delete(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Erro ao deletar produto");
+    }
   }
 }

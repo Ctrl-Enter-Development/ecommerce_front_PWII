@@ -1,28 +1,64 @@
 // lib/repositories/role_repository.dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 import '../models/role.dart';
 
 class RoleRepository {
- final List<Role> _roles = [];
- int _nextId = 1;
+  final String _baseUrl = "https://x8ki-letl-twmt.n7.xano.io/api:tPOO5Nin";
 
- Future<void> _simulateNetworkDelay() async {
-   await Future.delayed(Duration(milliseconds: 10));
- }
+  Future<List<Role>> fetchRoles() async {
+    final url = Uri.parse('$_baseUrl/role_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
 
- Future<List<Role>> fetchRoles() async {
-   await _simulateNetworkDelay();
-   return List.from(_roles);
- }
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((json) => Role.fromJson(json)).toList();
+    }
+    throw Exception("Erro ao buscar perfis");
+  }
 
- Future<Role> createRole(Role role) async {
-   await _simulateNetworkDelay();
-   final newRole = Role(id: _nextId++, name: role.name);
-   _roles.add(newRole);
-   return newRole;
- }
+  Future<Role> createRole(Role role) async {
+    final url = Uri.parse('$_baseUrl/role_repository');
+    final token = await GetStorage().read('authToken');
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "name": role.name,
+      }),
+    );
 
- Future<void> deleteRole(int id) async {
-   await _simulateNetworkDelay();
-   _roles.removeWhere((role) => role.id == id);
- }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Role.fromJson(data);
+    }
+    throw Exception("Erro ao criar perfil");
+  }
+
+  Future<void> deleteRole(int id) async {
+    final url = Uri.parse('$_baseUrl/role_repository/$id');
+    final token = await GetStorage().read('authToken');
+    final response = await http.delete(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Erro ao deletar perfil");
+    }
+  }
 }
