@@ -45,6 +45,25 @@ class RoleRepository {
     throw Exception("Erro ao criar perfil");
   }
 
+  Future<Role> updateRole(Role role) async {
+  final url = Uri.parse('$_baseUrl/role_repository/${role.id}');
+  final token = AppStorage.instance.token;
+  final response = await http.patch(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+    body: jsonEncode({'name': role.name}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return Role.fromJson(data);
+  }
+  throw Exception("Erro ao atualizar perfil");
+}
+
   Future<void> deleteRole(int id) async {
     final url = Uri.parse('$_baseUrl/role_repository/$id');
     final token = AppStorage.instance.token;

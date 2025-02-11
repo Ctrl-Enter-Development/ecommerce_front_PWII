@@ -17,7 +17,6 @@ class SubCategoryController extends ChangeNotifier {
     }
   }
 
-  /// Método para uso com FutureBuilder
   Future<List<SubCategory>> fetchSubCategories() async {
     await loadSubCategories();
     return subCategories;
@@ -31,6 +30,19 @@ class SubCategoryController extends ChangeNotifier {
     } catch (e) {
       print('Error adding subcategory: $e');
     }
+  }
+
+  Future<void> updateSubCategory(SubCategory subCategory) async {
+  try {
+    final updatedSubCategory = await _service.updateSubCategory(subCategory);
+    final index = _subCategories.indexWhere((s) => s.id == updatedSubCategory.id);
+    if (index != -1) {
+      _subCategories[index] = updatedSubCategory;
+      notifyListeners();
+    }
+  } catch (e) {
+    print('Error updating subcategory: $e');
+  }
   }
 
   Future<void> removeSubCategory(int id) async {

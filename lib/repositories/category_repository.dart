@@ -45,6 +45,25 @@ class CategoryRepository {
     throw Exception("Erro ao criar categoria");
   }
 
+  Future<Category> updateCategory(Category category) async {
+  final url = Uri.parse('$_baseUrl/category_repository/${category.id}');
+  final token = AppStorage.instance.token;
+  final response = await http.patch(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+    body: jsonEncode({'name': category.name}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return Category.fromJson(data);
+  }
+  throw Exception("Erro ao atualizar categoria");
+}
+
   Future<void> deleteCategory(int id) async {
     final url = Uri.parse('$_baseUrl/category_repository/$id');
     final token = AppStorage.instance.token;

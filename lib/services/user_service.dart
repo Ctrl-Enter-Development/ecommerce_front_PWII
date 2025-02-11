@@ -13,6 +13,10 @@ class UserService {
    return _repository.createUser(user);
  }
 
+ Future<User> updateUser(User user) async {
+  return await _repository.updateUser(user);
+  }
+
  Future<void> removeUser(int id) {
    return _repository.deleteUser(id);
  }

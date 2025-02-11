@@ -28,6 +28,19 @@ class CategoryController extends ChangeNotifier {
     }
   }
 
+  Future<void> updateCategory(Category category) async {
+  try {
+    final updatedCategory = await _service.updateCategory(category);
+    final index = _categories.indexWhere((c) => c.id == updatedCategory.id);
+    if (index != -1) {
+      _categories[index] = updatedCategory;
+      notifyListeners();
+    }
+  } catch (e) {
+    print('Error updating category: $e');
+  }
+}
+
   Future<void> removeCategory(int id) async {
     try {
       await _service.removeCategory(id);

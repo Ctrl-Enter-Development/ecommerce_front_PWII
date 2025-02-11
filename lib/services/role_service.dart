@@ -13,6 +13,10 @@ class RoleService {
    return _repository.createRole(role);
  }
 
+ Future<Role> updateRole(Role role) async {
+  return await _repository.updateRole(role);
+}
+
  Future<void> removeRole(int id) {
    return _repository.deleteRole(id);
  }

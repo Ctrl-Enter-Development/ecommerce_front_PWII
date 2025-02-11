@@ -5,6 +5,7 @@ import '../models/product.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
 import '../screens/product_details_screen.dart';
+import '../screens/edit_product_popup.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -52,15 +53,26 @@ class ProductCard extends StatelessWidget {
               child: Text("\$${product.price.toStringAsFixed(2)}"),
             ),
             if (isAdmin)
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    Provider.of<ProductController>(context, listen: false)
-                        .removeProduct(product.id);
-                  },
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => EditProductPopup(product: product),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      Provider.of<ProductController>(context, listen: false)
+                          .removeProduct(product.id);
+                    },
+                  ),
+                ],
               ),
           ],
         ),

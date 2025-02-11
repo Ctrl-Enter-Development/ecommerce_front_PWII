@@ -13,6 +13,10 @@ class SubCategoryService {
     return _repository.createSubCategory(subCategory);
   }
 
+  Future<SubCategory> updateSubCategory(SubCategory subCategory) async {
+  return await _repository.updateSubCategory(subCategory);
+  }
+
   Future<void> removeSubCategory(int id) {
     return _repository.deleteSubCategory(id);
   }

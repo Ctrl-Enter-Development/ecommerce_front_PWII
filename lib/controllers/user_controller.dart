@@ -29,6 +29,19 @@ class UserController extends ChangeNotifier {
    }
  }
 
+ Future<void> updateUser(User user) async {
+  try {
+    final updatedUser = await _service.updateUser(user);
+    final index = _users.indexWhere((u) => u.id == updatedUser.id);
+    if (index != -1) {
+      _users[index] = updatedUser;
+      notifyListeners();
+    }
+  } catch (e) {
+    print('Error updating user: $e');
+  }
+}
+
  Future<void> removeUser(int id) async {
    try {
      await _service.removeUser(id);

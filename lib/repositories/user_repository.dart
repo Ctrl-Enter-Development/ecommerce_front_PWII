@@ -48,6 +48,30 @@ class UserRepository {
     throw Exception("Erro ao criar usuário");
   }
 
+  Future<User> updateUser(User user) async {
+  final url = Uri.parse('$_baseUrl/user_repository/${user.id}');
+  final token = AppStorage.instance.token;
+  final response = await http.patch(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+    body: jsonEncode({
+      'userName': user.userName,
+      'password': user.password, 
+      'roleId': user.roleId,
+      'role': user.role,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return User.fromJson(data);
+  }
+  throw Exception("Erro ao atualizar usuário");
+  }
+
   Future<void> deleteUser(int id) async {
     final url = Uri.parse('$_baseUrl/user_repository/$id');
     final token = AppStorage.instance.token;

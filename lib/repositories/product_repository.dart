@@ -57,6 +57,53 @@ Future<Product> createProduct(Product product, {Uint8List? fileBytes, String? fi
   throw Exception("Erro ao criar produto");
 }
 
+Future<Product> updateProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
+  final uri = Uri.parse('$_baseUrl/product_repository/${product.id}');
+  final token = AppStorage.instance.token;
+
+  if (fileBytes != null && fileName != null) {
+    var request = http.MultipartRequest("PATCH", uri);
+    request.headers['Authorization'] = "Bearer $token";
+    request.fields['name'] = product.name;
+    request.fields['price'] = product.price.toString();
+    request.fields['subCategoryId'] = product.subCategoryId.toString();
+    request.fields['subCategory'] = product.subCategory;
+    request.fields['description'] = product.description;
+    request.files.add(
+      http.MultipartFile.fromBytes('url', fileBytes, filename: fileName),
+    );
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Product.fromJson(data);
+    }
+    throw Exception("Erro ao atualizar produto (com imagem)");
+  } else {
+    final body = jsonEncode({
+      'name': product.name,
+      'price': product.price,
+      'subCategoryId': product.subCategoryId,
+      'subCategory': product.subCategory,
+      'description': product.description,
+      'url': product.image?.url ?? ""
+    });
+    final response = await http.patch(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Product.fromJson(data);
+    }
+    throw Exception("Erro ao atualizar produto");
+  }
+}
+
 
   Future<void> deleteProduct(int id) async {
     final url = Uri.parse('$_baseUrl/product_repository/$id');

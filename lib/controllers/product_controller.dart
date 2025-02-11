@@ -39,6 +39,19 @@ class ProductController extends ChangeNotifier {
     }
   }
 
+  Future<void> updateProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
+  try {
+    final updatedProduct = await _service.updateProduct(product, fileBytes: fileBytes, fileName: fileName);
+    final index = _products.indexWhere((p) => p.id == updatedProduct.id);
+    if (index != -1) {
+      _products[index] = updatedProduct;
+      notifyListeners();
+    }
+  } catch (e) {
+    print('Error updating product: $e');
+  }
+  }
+
   Future<void> removeProduct(int id) async {
     try {
       await _service.removeProduct(id);

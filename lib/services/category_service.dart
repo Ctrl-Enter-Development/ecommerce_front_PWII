@@ -13,6 +13,10 @@ class CategoryService {
     return _repository.createCategory(category);
   }
 
+  Future<Category> updateCategory(Category category) async {
+  return await _repository.updateCategory(category);
+}
+
   Future<void> removeCategory(int id) {
     return _repository.deleteCategory(id);
   }

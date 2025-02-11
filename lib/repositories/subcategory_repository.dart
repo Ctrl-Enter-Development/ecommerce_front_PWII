@@ -46,6 +46,28 @@ class SubCategoryRepository {
     throw Exception("Erro ao criar subcategoria");
   }
 
+  Future<SubCategory> updateSubCategory(SubCategory subCategory) async {
+  final url = Uri.parse('$_baseUrl/sub_category_repository/${subCategory.id}');
+  final token = AppStorage.instance.token;
+  final response = await http.patch(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+    body: jsonEncode({
+      'name': subCategory.name,
+      'categoryId': subCategory.categoryId,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return SubCategory.fromJson(data);
+  }
+  throw Exception("Erro ao atualizar subcategoria");
+}
+
   Future<void> deleteSubCategory(int id) async {
     final url = Uri.parse('$_baseUrl/sub_category_repository/$id');
     final token = AppStorage.instance.token;

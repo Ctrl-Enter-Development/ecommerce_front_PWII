@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/user_controller.dart';
+import '../screens/edit_user_popup.dart';
 import '../models/user.dart';
 
 class UserCard extends StatelessWidget {
@@ -15,12 +16,26 @@ class UserCard extends StatelessWidget {
       child: ListTile(
         title: Text(user.userName),
         subtitle: Text(user.role),
-        trailing: IconButton(
-          icon: Icon(Icons.delete),
-          onPressed: () {
-            Provider.of<UserController>(context, listen: false)
-                .removeUser(user.id);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => EditUserPopup(user: user),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                Provider.of<UserController>(context, listen: false)
+                    .removeUser(user.id);
+              },
+            ),
+          ],
         ),
       ),
     );
