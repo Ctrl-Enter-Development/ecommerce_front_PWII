@@ -1,6 +1,6 @@
 // lib/repositories/product_repository.dart
 import 'dart:convert';
-import 'dart:typed_data'; // Import necessário para Uint8List
+import 'dart:typed_data'; 
 import 'package:http/http.dart' as http;
 import 'package:ecommerce_front/utils/app_storage.dart';
 import '../models/product.dart';

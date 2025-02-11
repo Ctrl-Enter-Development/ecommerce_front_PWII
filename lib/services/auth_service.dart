@@ -11,16 +11,27 @@ class AuthService {
     if (token == null) {
       throw Exception("Token não encontrado");
     }
+
     final url = Uri.parse('$_baseUrl/auth/me');
-    final response = await http.get(url, headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token",
-    });
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return User.fromJson(data);
+      try {
+        final data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } catch (e) {
+        throw Exception("Erro ao decodificar a resposta: $e");
+      }
+    } else if (response.statusCode == 401) {
+      throw Exception("Token inválido");
+    } else {
+      throw Exception("Erro ao buscar dados do usuário: ${response.statusCode}");
     }
-    throw Exception("Erro ao buscar dados do usuário");
   }
 }

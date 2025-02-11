@@ -1,4 +1,4 @@
-// lib/screens/product_list_screen.dart
+// ==== lib/screens/product_list_screen.dart ====
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/product_controller.dart';
@@ -8,8 +8,7 @@ import 'cart_screen.dart';
 import 'add_product_popup.dart';
 
 class ProductListScreen extends StatefulWidget {
-  /// Se [subcategoryId] for nulo, carrega todos os produtos;
-  /// caso contrário, carrega somente os produtos que possuem este ID.
+
   final int? subcategoryId;
 
   const ProductListScreen({Key? key, this.subcategoryId}) : super(key: key);
@@ -24,7 +23,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     final productController =
         Provider.of<ProductController>(context, listen: false);
-    // Se for informado um subcategoryId, filtra os produtos, senão, carrega todos
     if (widget.subcategoryId != null) {
       productController.loadProductsBySubcategory(widget.subcategoryId!);
     } else {
@@ -49,8 +47,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           return GridView.builder(
             padding: EdgeInsets.all(8.0),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-                  MediaQuery.of(context).size.width > 600 ? 3 : 2,
+              crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
               crossAxisSpacing: 8.0,
               mainAxisSpacing: 8.0,
               childAspectRatio: 0.75,
@@ -63,6 +60,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           );
         },
       ),
+
       floatingActionButton: userRole == "Client"
           ? FloatingActionButton(
               onPressed: () {

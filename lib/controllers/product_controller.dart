@@ -19,12 +19,9 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  // Método para filtrar os produtos pela subcategoria (filtragem no cliente)
   Future<void> loadProductsBySubcategory(int subcategoryId) async {
     try {
-      // Busca todos os produtos
       List<Product> allProducts = await _service.getProducts();
-      // Filtra os produtos cujo subCategoryId seja igual ao informado
       _products = allProducts.where((p) => p.subCategoryId == subcategoryId).toList();
       notifyListeners();
     } catch (e) {

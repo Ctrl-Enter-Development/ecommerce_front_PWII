@@ -28,17 +28,12 @@ class AppScaffold extends StatelessWidget {
     final userRole = authController.user?.role ?? "Admin";
 
     return Scaffold(
-      // Para usuários Client, definimos um ícone de filtro no canto superior esquerdo;
-      // para Admin, usamos o ícone padrão do Drawer (hamburger icon)
       appBar: AppBar(
-        // Se o usuário for Client, usamos o ícone de filtro; caso contrário, deixamos nulo (o padrão é o ícone do Drawer)
         leading: userRole == "Client"
             ? IconButton(
                 icon: Icon(Icons.filter_list),
                 onPressed: () async {
-                  // Busca as subcategorias (pode ser um FutureBuilder ou await, conforme preferir)
                   final subCategories = await Provider.of<SubCategoryController>(context, listen: false).fetchSubCategories();
-                  // Exibe um modal bottom sheet com a lista de subcategorias
                   showModalBottomSheet(
                     context: context,
                     builder: (context) {
@@ -47,12 +42,11 @@ class AppScaffold extends StatelessWidget {
                           return ListTile(
                             title: Text(subcat.name),
                             onTap: () {
-                              Navigator.pop(context); // fecha o modal
+                              Navigator.pop(context); 
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AppScaffold(
-                                    // Passa o subcategoryId para filtrar os produtos
                                     bodyContent: ProductListScreen(subcategoryId: subcat.id),
                                   ),
                                 ),
@@ -113,7 +107,6 @@ class AppScaffold extends StatelessWidget {
               ),
               decoration: BoxDecoration(color: Colors.blue),
             ),
-            // Menu para usuários Admin (itens estáticos)
             if (userRole == "Admin") ...[
               ListTile(
                 title: Text('Produtos'),
@@ -171,7 +164,6 @@ class AppScaffold extends StatelessWidget {
                 },
               ),
             ],
-            // Menu para usuários Client (itens estáticos complementares)
             if (userRole == "Client") ...[
               ListTile(
                 title: Text('Carrinho'),
