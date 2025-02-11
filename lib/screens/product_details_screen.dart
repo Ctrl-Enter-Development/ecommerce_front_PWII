@@ -7,6 +7,7 @@ import 'package:ecommerce_front/models/product.dart';
 import 'package:provider/provider.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/product_rating_widget.dart';
 import '../widgets/product_question_widget.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -110,11 +111,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Divider(),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
+                  child: ProductRatingWidget(
+                    productId: product.id,
+                    currentUserId: currentUserId,
+                  ),
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Text("Perguntas e Respostas",
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
                 Container(
-                  height: 400, 
+                  height: 400,
                   child: ProductQuestionWidget(
                     productId: product.id,
                     currentUserId: currentUserId,
