@@ -1,4 +1,3 @@
-A seguir, uma sugestão de descrição técnica para o README do projeto:
 
 ---
 
@@ -64,4 +63,4 @@ Todas as operações de CRUD e autenticação se comunicam com um backend hosped
 
 ---
 
-Essa estrutura modular e a clara separação de responsabilidades não só facilitam a escalabilidade e manutenção do código, mas também permitem a fácil integração de novas funcionalidades e adaptações para diferentes requisitos de negócio. Essa abordagem torna o projeto um exemplo robusto de como desenvolver aplicativos de e-commerce utilizando Flutter e padrões modernos de desenvolvimento.
+
