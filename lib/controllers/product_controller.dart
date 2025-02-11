@@ -1,5 +1,5 @@
 // lib/controllers/product_controller.dart
-import 'dart:typed_data'; 
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
@@ -16,6 +16,19 @@ class ProductController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Error loading products: $e');
+    }
+  }
+
+  // Método para filtrar os produtos pela subcategoria (filtragem no cliente)
+  Future<void> loadProductsBySubcategory(int subcategoryId) async {
+    try {
+      // Busca todos os produtos
+      List<Product> allProducts = await _service.getProducts();
+      // Filtra os produtos cujo subCategoryId seja igual ao informado
+      _products = allProducts.where((p) => p.subCategoryId == subcategoryId).toList();
+      notifyListeners();
+    } catch (e) {
+      print('Error loading products by subcategory: $e');
     }
   }
 

@@ -7,15 +7,35 @@ import '../widgets/product_card.dart';
 import 'cart_screen.dart';
 import 'add_product_popup.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends StatefulWidget {
+  /// Se [subcategoryId] for nulo, carrega todos os produtos;
+  /// caso contrário, carrega somente os produtos que possuem este ID.
+  final int? subcategoryId;
+
+  const ProductListScreen({Key? key, this.subcategoryId}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
+  _ProductListScreenState createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends State<ProductListScreen> {
+  @override
+  void initState() {
+    super.initState();
     final productController =
         Provider.of<ProductController>(context, listen: false);
-    productController.loadProducts();
+    // Se for informado um subcategoryId, filtra os produtos, senão, carrega todos
+    if (widget.subcategoryId != null) {
+      productController.loadProductsBySubcategory(widget.subcategoryId!);
+    } else {
+      productController.loadProducts();
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-    final userRole = authController.user?.role ?? "Client"; 
+    final userRole = authController.user?.role ?? "Client";
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +49,8 @@ class ProductListScreen extends StatelessWidget {
           return GridView.builder(
             padding: EdgeInsets.all(8.0),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+              crossAxisCount:
+                  MediaQuery.of(context).size.width > 600 ? 3 : 2,
               crossAxisSpacing: 8.0,
               mainAxisSpacing: 8.0,
               childAspectRatio: 0.75,

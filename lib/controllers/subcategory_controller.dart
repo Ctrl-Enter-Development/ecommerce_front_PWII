@@ -1,4 +1,3 @@
-// lib/controllers/subcategory_controller.dart
 import 'package:flutter/material.dart';
 import '../models/subcategory.dart';
 import '../services/subcategory_service.dart';
@@ -16,6 +15,12 @@ class SubCategoryController extends ChangeNotifier {
     } catch (e) {
       print('Error loading subcategories: $e');
     }
+  }
+
+  /// Método para uso com FutureBuilder
+  Future<List<SubCategory>> fetchSubCategories() async {
+    await loadSubCategories();
+    return subCategories;
   }
 
   Future<void> addSubCategory(SubCategory subCategory) async {

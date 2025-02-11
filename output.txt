@@ -14,16 +14,14 @@ import 'package:get_storage/get_storage.dart';
 import 'controllers/product_controller.dart';
 
 void main() async {
-  // Inicializa o GetStorage
   await GetStorage.init();
 
-  // Inicia o app com MultiProvider para gerenciar múltiplos controladores de estado
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
             create: (_) =>
-                ProductController()), // Inicia o ProductController como provedor de estado
+                ProductController()), 
         ChangeNotifierProvider(create: (_) => CategoryController()),
         ChangeNotifierProvider(create: (_) => SubCategoryController()),
         ChangeNotifierProvider(create: (_) => ProductController()),
@@ -48,9 +46,9 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Product App',
       theme: ThemeData(
-        primarySwatch: Colors.blue, // Define a cor padrão do tema
+        primarySwatch: Colors.blue, 
       ),
-      home: LoginScreen(), // Define a tela inicial como ProductListScreen
+      home: LoginScreen(), 
     );
   }
 }
@@ -60,29 +58,21 @@ class MyApp extends StatelessWidget {
 import 'package:get_storage/get_storage.dart';
 
 class AppStorage {
-  // Construtor privado (Singleton)
   AppStorage._internal();
 
-  // Instância única da classe
   static final AppStorage instance = AppStorage._internal();
 
-  // Factory para retornar a instância única
   factory AppStorage() => instance;
 
-  // Chave padronizada para o token
   static const String tokenKey = 'authToken';
 
-  // Instância do GetStorage
   final GetStorage storage = GetStorage();
 
-  // Getter para obter o token
   String? get token => storage.read(tokenKey);
 
-  // Setter para salvar ou remover o token
   void setToken(String? token) =>
       token == null ? storage.remove(tokenKey) : storage.write(tokenKey, token);
 
-  // Método para remover o token
   void removeToken() {
     storage.remove(tokenKey);
   }
@@ -295,7 +285,6 @@ class SubCategoryRepository {
       body: jsonEncode({
         "name": subCategory.name,
         "categoryId": subCategory.categoryId,
-        // Caso seja necessário enviar outros detalhes, adicione-os aqui.
       }),
     );
 
@@ -363,7 +352,6 @@ class UserRepository {
         "userName": user.userName,
         "password": user.password,
         "roleId": user.roleId,
-        // Se necessário, envie o nome do perfil:
         "role": user.role,
       }),
     );
@@ -417,40 +405,41 @@ class ProductRepository {
     throw Exception("Erro ao buscar produtos");
   }
 
-  Future<Product> createProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
-    final uri = Uri.parse('$_baseUrl/product_repository'); // Certifique-se que este é o endpoint correto
-    final token = AppStorage.instance.token;
-    final request = http.MultipartRequest("POST", uri);
-    request.headers['Authorization'] = "Bearer $token";
+Future<Product> createProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
+  final uri = Uri.parse('$_baseUrl/product_repository'); 
+  final token = AppStorage.instance.token;
+  final request = http.MultipartRequest("POST", uri);
+  request.headers['Authorization'] = "Bearer $token";
 
-    // Adiciona os campos do produto (conforme o body que o backend espera)
-    request.fields['name'] = product.name;
-    request.fields['price'] = product.price.toString();
-    request.fields['subCategoryId'] = product.subCategoryId.toString();
-    request.fields['subCategory'] = product.subCategory;
-    request.fields['description'] = product.description;
-    // Envia o campo "url" vazio para que o backend retorne a URL da imagem
+  request.fields['name'] = product.name;
+  request.fields['price'] = product.price.toString();
+  request.fields['subCategoryId'] = product.subCategoryId.toString();
+  request.fields['subCategory'] = product.subCategory;
+  request.fields['description'] = product.description;
+
+  if (fileBytes != null && fileName != null) {
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'url', 
+        fileBytes,
+        filename: fileName,
+      ),
+    );
+  } else {
+ 
     request.fields['url'] = "";
-
-    // Se houver arquivo selecionado, anexa-o usando o nome "image" (pois o backend espera esse nome)
-    if (fileBytes != null && fileName != null) {
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'image', // Nome do campo
-          fileBytes,
-          filename: fileName,
-        ),
-      );
-    }
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return Product.fromJson(data);
-    }
-    throw Exception("Erro ao criar produto");
   }
+
+  final streamedResponse = await request.send();
+  final response = await http.Response.fromStream(streamedResponse);
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return Product.fromJson(data);
+  }
+  throw Exception("Erro ao criar produto");
+}
+
 
   Future<void> deleteProduct(int id) async {
     final url = Uri.parse('$_baseUrl/product_repository/$id');
@@ -465,9 +454,6 @@ class ProductRepository {
   }
 }
 
-// ==== lib/repositories/sub_category_repository.dart ====
-
-
 // ==== lib/models/product.dart ====
 // lib/models/product.dart
 import 'subcategory.dart';
@@ -480,7 +466,7 @@ class ProductImage {
   final int size;
   final String mime;
   final Map<String, dynamic>? meta;
-  final String url; // URL da imagem
+  final String url; 
 
   ProductImage({
     required this.access,
@@ -527,7 +513,7 @@ class Product {
   int subCategoryId;
   String subCategory;
   String description;
-  ProductImage? image; // Campo opcional
+  ProductImage? image; 
 
   Product({
     required this.id,
@@ -552,7 +538,6 @@ class Product {
   }
 
   Map<String, dynamic> toJson() {
-    // O backend espera os campos: name, price, subCategoryId, subCategory, description e "url" (para a imagem)
     return {
       'name': name,
       'price': price,
@@ -570,29 +555,24 @@ import '../models/subcategory.dart';
 import 'package:provider/provider.dart';
 import '../controllers/subcategory_controller.dart';
 
-// Widget que exibe os detalhes de uma subcategoria em um cartão (Card)
 class SubCategoryCard extends StatelessWidget {
-  final SubCategory subCategory; // Subcategoria a ser exibida
+  final SubCategory subCategory; 
 
-  // Construtor que recebe uma subcategoria e usa o id como chave única
   SubCategoryCard({required this.subCategory})
       : super(key: ValueKey(subCategory.id));
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      // Card que envolve o ListTile, criando um visual com bordas elevadas
       child: ListTile(
-        title: Text(subCategory.name), // Título exibindo o nome da subcategoria
+        title: Text(subCategory.name), 
         subtitle: Text(
-          'Categoria: ${subCategory.category.name}', // Nome da categoria associada
-          style: TextStyle(color: Colors.grey[600]), // Cor cinza para o texto
+          'Categoria: ${subCategory.category.name}', 
+          style: TextStyle(color: Colors.grey[600]),
         ),
-        // Botão de deletar subcategoria no canto direito do cartão
         trailing: IconButton(
-          icon: Icon(Icons.delete), // Ícone de lixeira
+          icon: Icon(Icons.delete), 
           onPressed: () {
-            // Ao pressionar, chama o método de remoção do SubCategoryController
             Provider.of<SubCategoryController>(context, listen: false)
                 .removeSubCategory(subCategory.id);
           },
@@ -612,14 +592,14 @@ import 'role.dart';
 class User {
   final int id;
   final String userName;
-  final String? password; // agora é String? para ser opcional
+  final String? password; 
   final int roleId;
   final String role;
 
   User({
     required this.id,
     required this.userName,
-    this.password, // não é mais obrigatório
+    this.password, 
     required this.roleId,
     required this.role,
   });
@@ -628,7 +608,7 @@ class User {
     return User(
       id: json['id'] as int,
       userName: json['userName'] as String,
-      password: json['password'] as String?, // ou simplesmente: json['password']
+      password: json['password'] as String?, 
       roleId: json['roleId'] as int,
       role: json['role'] as String,
     );
@@ -652,7 +632,7 @@ class SubCategory {
   final int id;
   final String name;
   final int categoryId;
-  final String category; // Agora é uma String
+  final String category;
 
   SubCategory({
     required this.id,
@@ -938,18 +918,35 @@ import '../widgets/product_card.dart';
 import 'cart_screen.dart';
 import 'add_product_popup.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends StatefulWidget {
+  /// Se [subcategoryId] for nulo, carrega todos os produtos;
+  /// caso contrário, carrega somente os produtos que possuem este ID.
+  final int? subcategoryId;
+
+  const ProductListScreen({Key? key, this.subcategoryId}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    // Carrega os produtos (pode ser melhor feito em initState de um StatefulWidget,
-    // mas aqui mantemos simples)
+  _ProductListScreenState createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends State<ProductListScreen> {
+  @override
+  void initState() {
+    super.initState();
     final productController =
         Provider.of<ProductController>(context, listen: false);
-    productController.loadProducts();
+    // Se for informado um subcategoryId, filtra os produtos, senão, carrega todos
+    if (widget.subcategoryId != null) {
+      productController.loadProductsBySubcategory(widget.subcategoryId!);
+    } else {
+      productController.loadProducts();
+    }
+  }
 
-    // Obtém o papel do usuário para definir qual botão exibir
+  @override
+  Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-    final userRole = authController.user?.role ?? "Client"; // valor padrão "Client"
+    final userRole = authController.user?.role ?? "Client";
 
     return Scaffold(
       appBar: AppBar(
@@ -963,7 +960,8 @@ class ProductListScreen extends StatelessWidget {
           return GridView.builder(
             padding: EdgeInsets.all(8.0),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+              crossAxisCount:
+                  MediaQuery.of(context).size.width > 600 ? 3 : 2,
               crossAxisSpacing: 8.0,
               mainAxisSpacing: 8.0,
               childAspectRatio: 0.75,
@@ -976,7 +974,6 @@ class ProductListScreen extends StatelessWidget {
           );
         },
       ),
-      // Botão flutuante condicional
       floatingActionButton: userRole == "Client"
           ? FloatingActionButton(
               onPressed: () {
@@ -990,7 +987,6 @@ class ProductListScreen extends StatelessWidget {
             )
           : FloatingActionButton(
               onPressed: () {
-                // Abre o popup para adicionar produto (para o admin)
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => AddProductPopup(),
@@ -1244,12 +1240,10 @@ class _AddProductPopupState extends State<AddProductPopup> {
   String _description = '';
   SubCategory? _selectedSubCategory;
 
-  // Dados do arquivo selecionado
   Uint8List? _pickedFileBytes;
   String? _pickedFileName;
   bool _isUploading = false;
 
-  // Função para selecionar a imagem usando file_picker
   Future<void> _pickImage() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -1274,7 +1268,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Nome do produto
               TextFormField(
                 decoration: InputDecoration(labelText: 'Nome do Produto'),
                 validator: (value) {
@@ -1287,7 +1280,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                   _name = value!;
                 },
               ),
-              // Preço
               TextFormField(
                 decoration: InputDecoration(labelText: 'Preço do Produto'),
                 keyboardType: TextInputType.number,
@@ -1301,7 +1293,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                   _price = double.parse(value!);
                 },
               ),
-              // Descrição
               TextFormField(
                 decoration: InputDecoration(labelText: 'Descrição'),
                 validator: (value) {
@@ -1314,7 +1305,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                   _description = value!;
                 },
               ),
-              // Botão para selecionar imagem
               SizedBox(height: 8),
               Row(
                 children: [
@@ -1336,7 +1326,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                   height: 100,
                   child: Image.memory(_pickedFileBytes!, fit: BoxFit.cover),
                 ),
-              // Dropdown para subcategoria
               DropdownButtonFormField<SubCategory>(
                 decoration: InputDecoration(labelText: 'Subcategoria'),
                 items: subCategories.map((subCategory) {
@@ -1372,7 +1361,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
           child: Text('Adicionar'),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              // Verifica se o arquivo foi selecionado
               if (_pickedFileBytes == null || _pickedFileName == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Selecione uma imagem para o produto.")),
@@ -1387,7 +1375,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
                 subCategoryId: _selectedSubCategory!.id,
                 subCategory: _selectedSubCategory!.name,
                 description: _description,
-                image: null, // O arquivo será enviado via multipart
+                image: null, 
               );
               await Provider.of<ProductController>(context, listen: false)
                   .addProductWithFile(newProduct, fileBytes: _pickedFileBytes, fileName: _pickedFileName);
@@ -1553,7 +1541,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             _passwordController.text,
                           );
                           if (success) {
-                            // Após login, busque os dados do usuário (incluindo o papel)
                             await Provider.of<AuthController>(context, listen: false)
                                 .fetchUserData();
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -1610,7 +1597,6 @@ class _AddUserPopupState extends State<AddUserPopup> {
   @override
   void initState() {
     super.initState();
-    // Carrega as roles se ainda não estiverem carregadas
     Provider.of<RoleController>(context, listen: false).loadRoles();
   }
 
@@ -1791,7 +1777,6 @@ class _AddSubCategoryPopupState extends State<AddSubCategoryPopup> {
   @override
   void initState() {
     super.initState();
-    // Carrega as categorias se ainda não estiverem carregadas
     Provider.of<CategoryController>(context, listen: false).loadCategories();
   }
 
@@ -1894,8 +1879,6 @@ class OrderScreen extends StatelessWidget {
             ElevatedButton(
               child: Text("Confirmar Pedido"),
               onPressed: () {
-                // Aqui você pode integrar com um OrderController/Service para enviar o pedido
-                // Neste exemplo, apenas simulamos a finalização e limpamos o carrinho.
                 cartController.clearCart();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Pedido realizado com sucesso!")),
@@ -2073,7 +2056,6 @@ class CategoryController extends ChangeNotifier {
 
 
 // ==== lib/controllers/subcategory_controller.dart ====
-// lib/controllers/subcategory_controller.dart
 import 'package:flutter/material.dart';
 import '../models/subcategory.dart';
 import '../services/subcategory_service.dart';
@@ -2091,6 +2073,12 @@ class SubCategoryController extends ChangeNotifier {
     } catch (e) {
       print('Error loading subcategories: $e');
     }
+  }
+
+  /// Método para uso com FutureBuilder
+  Future<List<SubCategory>> fetchSubCategories() async {
+    await loadSubCategories();
+    return subCategories;
   }
 
   Future<void> addSubCategory(SubCategory subCategory) async {
@@ -2114,10 +2102,9 @@ class SubCategoryController extends ChangeNotifier {
   }
 }
 
-
 // ==== lib/controllers/product_controller.dart ====
 // lib/controllers/product_controller.dart
-import 'dart:typed_data'; // Import necessário para Uint8List
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
@@ -2137,7 +2124,19 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  // Método para adicionar produto com arquivo (imagem)
+  // Método para filtrar os produtos pela subcategoria (filtragem no cliente)
+  Future<void> loadProductsBySubcategory(int subcategoryId) async {
+    try {
+      // Busca todos os produtos
+      List<Product> allProducts = await _service.getProducts();
+      // Filtra os produtos cujo subCategoryId seja igual ao informado
+      _products = allProducts.where((p) => p.subCategoryId == subcategoryId).toList();
+      notifyListeners();
+    } catch (e) {
+      print('Error loading products by subcategory: $e');
+    }
+  }
+
   Future<void> addProductWithFile(Product product, {Uint8List? fileBytes, String? fileName}) async {
     try {
       final addedProduct = await _service.createProduct(product, fileBytes: fileBytes, fileName: fileName);
@@ -2272,7 +2271,6 @@ class ProductService {
     return _repository.fetchProducts();
   }
 
-  // Método para criar produto com arquivo (imagem)
   Future<Product> createProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
     return await _repository.createProduct(product, fileBytes: fileBytes, fileName: fileName);
   }
@@ -2459,7 +2457,6 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () {
-          // Navega para a tela de detalhes, passando o id do produto
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -2525,6 +2522,8 @@ import 'package:ecommerce_front/screens/role_list_screen.dart';
 import '../screens/cart_screen.dart';
 import '../screens/order_screen.dart';
 import 'package:ecommerce_front/controllers/auth_controller.dart';
+import 'package:ecommerce_front/controllers/subcategory_controller.dart';
+import 'package:ecommerce_front/models/subcategory.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget bodyContent;
@@ -2535,13 +2534,49 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final storage = GetStorage();
     final authController = Provider.of<AuthController>(context);
-    // Obtém o nome e o papel do usuário; se não houver, define valores padrão
     final userName = authController.user?.userName ?? "Usuário";
-    final userRole = authController.user?.role ?? "Admin"; // ou "Client" conforme sua lógica
+    final userRole = authController.user?.role ?? "Admin";
 
     return Scaffold(
+      // Para usuários Client, definimos um ícone de filtro no canto superior esquerdo;
+      // para Admin, usamos o ícone padrão do Drawer (hamburger icon)
       appBar: AppBar(
-        title: Text("Admin Panel"),
+        // Se o usuário for Client, usamos o ícone de filtro; caso contrário, deixamos nulo (o padrão é o ícone do Drawer)
+        leading: userRole == "Client"
+            ? IconButton(
+                icon: Icon(Icons.filter_list),
+                onPressed: () async {
+                  // Busca as subcategorias (pode ser um FutureBuilder ou await, conforme preferir)
+                  final subCategories = await Provider.of<SubCategoryController>(context, listen: false).fetchSubCategories();
+                  // Exibe um modal bottom sheet com a lista de subcategorias
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return ListView(
+                        children: subCategories.map((subcat) {
+                          return ListTile(
+                            title: Text(subcat.name),
+                            onTap: () {
+                              Navigator.pop(context); // fecha o modal
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AppScaffold(
+                                    // Passa o subcategoryId para filtrar os produtos
+                                    bodyContent: ProductListScreen(subcategoryId: subcat.id),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  );
+                },
+              )
+            : null,
+        title: Text(userRole == "Admin" ? "Admin Panel" : "Client Panel"),
         actions: [
           Row(
             children: [
@@ -2552,16 +2587,11 @@ class AppScaffold extends StatelessWidget {
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'logout') {
-                    // Remove o token do armazenamento
                     storage.remove('authToken');
-                    // Limpa os dados do usuário (não usamos await, pois clearUser() retorna void)
                     Provider.of<AuthController>(context, listen: false).clearUser();
-                    // Redireciona para a tela de login
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   }
                 },
@@ -2593,7 +2623,7 @@ class AppScaffold extends StatelessWidget {
               ),
               decoration: BoxDecoration(color: Colors.blue),
             ),
-            // Itens do menu para Admin
+            // Menu para usuários Admin (itens estáticos)
             if (userRole == "Admin") ...[
               ListTile(
                 title: Text('Produtos'),
@@ -2651,19 +2681,8 @@ class AppScaffold extends StatelessWidget {
                 },
               ),
             ],
-            // Itens do menu para Client (cliente)
+            // Menu para usuários Client (itens estáticos complementares)
             if (userRole == "Client") ...[
-              ListTile(
-                title: Text('Produtos'),
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: ProductListScreen()),
-                    ),
-                  );
-                },
-              ),
               ListTile(
                 title: Text('Carrinho'),
                 onTap: () {
