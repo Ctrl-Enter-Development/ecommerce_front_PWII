@@ -6,6 +6,8 @@ import 'package:ecommerce_front/utils/app_storage.dart';
 import 'package:ecommerce_front/models/product.dart';
 import 'package:provider/provider.dart';
 import '../controllers/cart_controller.dart';
+import '../controllers/auth_controller.dart';
+import '../widgets/product_question_widget.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final int productId;
@@ -55,56 +57,71 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             return Center(child: Text("Erro: ${snapshot.error}"));
           } else if (snapshot.hasData) {
             final product = snapshot.data!;
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  product.image?.url != null && product.image!.url.isNotEmpty
-                      ? Image.network(
-                          product.image!.url,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 300,
-                        )
-                      : Container(
-                          width: double.infinity,
-                          height: 300,
-                          color: Colors.grey,
-                          child: Icon(Icons.image, size: 100),
-                        ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(product.name,
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            final authController = Provider.of<AuthController>(context);
+            final int currentUserId = authController.user?.id ?? 0;
+            final bool isAdmin = (authController.user?.role ?? "") == "Admin";
+
+            return ListView(
+              children: [
+                product.image?.url != null && product.image!.url.isNotEmpty
+                    ? Image.network(
+                        product.image!.url,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 300,
+                      )
+                    : Container(
+                        width: double.infinity,
+                        height: 300,
+                        color: Colors.grey,
+                        child: Icon(Icons.image, size: 100),
+                      ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(product.name,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text("\$${product.price.toStringAsFixed(2)}",
+                      style: TextStyle(fontSize: 20, color: Colors.green)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Subcategoria: ${product.subCategory}", style: TextStyle(fontSize: 16)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Descrição: ${product.description}", style: TextStyle(fontSize: 16)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Provider.of<CartController>(context, listen: false)
+                          .addProductToCart(product, 1);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Produto adicionado ao carrinho")),
+                      );
+                    },
+                    child: Text("Adicionar ao Carrinho"),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text("\$${product.price.toStringAsFixed(2)}",
-                        style: TextStyle(fontSize: 20, color: Colors.green)),
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Perguntas e Respostas",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                Container(
+                  height: 400, 
+                  child: ProductQuestionWidget(
+                    productId: product.id,
+                    currentUserId: currentUserId,
+                    isAdmin: isAdmin,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text("Subcategoria: ${product.subCategory}", style: TextStyle(fontSize: 16)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text("Descrição: ${product.description}", style: TextStyle(fontSize: 16)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Provider.of<CartController>(context, listen: false)
-                            .addProductToCart(product, 1);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Produto adicionado ao carrinho")),
-                        );
-                      },
-                      child: Text("Adicionar ao Carrinho"),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             );
           }
           return Container();
