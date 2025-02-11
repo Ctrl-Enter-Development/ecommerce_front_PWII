@@ -1,8 +1,9 @@
-// lib/controllers/product_controller.dart
+// ==== lib/controllers/product_controller.dart ====
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
+import '../services/subcategory_service.dart'; 
 
 class ProductController extends ChangeNotifier {
   final ProductService _service = ProductService();
@@ -29,6 +30,22 @@ class ProductController extends ChangeNotifier {
     }
   }
 
+  Future<void> loadProductsByCategory(int categoryId) async {
+    try {
+      List<Product> allProducts = await _service.getProducts();
+      final subCategoryService = SubCategoryService();
+      final subCategories = await subCategoryService.getSubCategories();
+      final List<int> subcatIds = subCategories
+          .where((sub) => sub.categoryId == categoryId)
+          .map((sub) => sub.id)
+          .toList();
+      _products = allProducts.where((p) => subcatIds.contains(p.subCategoryId)).toList();
+      notifyListeners();
+    } catch (e) {
+      print('Error loading products by category: $e');
+    }
+  }
+
   Future<void> addProductWithFile(Product product, {Uint8List? fileBytes, String? fileName}) async {
     try {
       final addedProduct = await _service.createProduct(product, fileBytes: fileBytes, fileName: fileName);
@@ -40,16 +57,16 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> updateProduct(Product product, {Uint8List? fileBytes, String? fileName}) async {
-  try {
-    final updatedProduct = await _service.updateProduct(product, fileBytes: fileBytes, fileName: fileName);
-    final index = _products.indexWhere((p) => p.id == updatedProduct.id);
-    if (index != -1) {
-      _products[index] = updatedProduct;
-      notifyListeners();
+    try {
+      final updatedProduct = await _service.updateProduct(product, fileBytes: fileBytes, fileName: fileName);
+      final index = _products.indexWhere((p) => p.id == updatedProduct.id);
+      if (index != -1) {
+        _products[index] = updatedProduct;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error updating product: $e');
     }
-  } catch (e) {
-    print('Error updating product: $e');
-  }
   }
 
   Future<void> removeProduct(int id) async {

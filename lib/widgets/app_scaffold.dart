@@ -13,7 +13,9 @@ import '../screens/cart_screen.dart';
 import '../screens/order_screen.dart';
 import 'package:ecommerce_front/controllers/auth_controller.dart';
 import 'package:ecommerce_front/controllers/subcategory_controller.dart';
+import 'package:ecommerce_front/controllers/category_controller.dart'; 
 import 'package:ecommerce_front/models/subcategory.dart';
+import 'package:ecommerce_front/models/category.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget bodyContent;
@@ -33,27 +35,78 @@ class AppScaffold extends StatelessWidget {
             ? IconButton(
                 icon: Icon(Icons.filter_list),
                 onPressed: () async {
-                  final subCategories = await Provider.of<SubCategoryController>(context, listen: false).fetchSubCategories();
+                  final categoryController =
+                      Provider.of<CategoryController>(context, listen: false);
+                  final subCategoryController =
+                      Provider.of<SubCategoryController>(context, listen: false);
+                  await categoryController.loadCategories();
+                  await subCategoryController.loadSubCategories();
+
+                  final List<Category> categories = categoryController.categories;
+                  final List<SubCategory> subCategories = subCategoryController.subCategories;
+
                   showModalBottomSheet(
                     context: context,
                     builder: (context) {
                       return ListView(
-                        children: subCategories.map((subcat) {
-                          return ListTile(
-                            title: Text(subcat.name),
+                        children: [
+                          ListTile(
+                            title: Text("Todos os produtos"),
                             onTap: () {
-                              Navigator.pop(context); 
+                              Navigator.pop(context);
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AppScaffold(
-                                    bodyContent: ProductListScreen(subcategoryId: subcat.id),
+                                    bodyContent: ProductListScreen(),
                                   ),
                                 ),
                               );
                             },
-                          );
-                        }).toList(),
+                          ),
+                          ...categories.map((cat) {
+                            final List<SubCategory> subs = subCategories
+                                .where((sub) => sub.categoryId == cat.id)
+                                .toList();
+                            return ExpansionTile(
+                              title: Text(cat.name),
+                              children: [
+                                ListTile(
+                                  title: Text("Todos da categoria"),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AppScaffold(
+                                          bodyContent: ProductListScreen(
+                                              categoryId: cat.id),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                ...subs.map((subcat) {
+                                  return ListTile(
+                                    title: Text(subcat.name),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AppScaffold(
+                                            bodyContent: ProductListScreen(
+                                                subcategoryId: subcat.id),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                              ],
+                            );
+                          }).toList(),
+                        ],
                       );
                     },
                   );
@@ -72,7 +125,8 @@ class AppScaffold extends StatelessWidget {
                 onSelected: (value) {
                   if (value == 'logout') {
                     storage.remove('authToken');
-                    Provider.of<AuthController>(context, listen: false).clearUser();
+                    Provider.of<AuthController>(context, listen: false)
+                        .clearUser();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -114,7 +168,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: ProductListScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: ProductListScreen()),
                     ),
                   );
                 },
@@ -125,7 +180,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: CategoryListScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: CategoryListScreen()),
                     ),
                   );
                 },
@@ -136,7 +192,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: SubCategoryListScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: SubCategoryListScreen()),
                     ),
                   );
                 },
@@ -147,7 +204,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: UserListScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: UserListScreen()),
                     ),
                   );
                 },
@@ -158,7 +216,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: RoleListScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: RoleListScreen()),
                     ),
                   );
                 },
@@ -171,7 +230,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: CartScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: CartScreen()),
                     ),
                   );
                 },
@@ -182,7 +242,8 @@ class AppScaffold extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppScaffold(bodyContent: OrderScreen()),
+                      builder: (context) =>
+                          AppScaffold(bodyContent: OrderScreen()),
                     ),
                   );
                 },

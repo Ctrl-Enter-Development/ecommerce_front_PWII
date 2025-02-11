@@ -8,10 +8,10 @@ import 'cart_screen.dart';
 import 'add_product_popup.dart';
 
 class ProductListScreen extends StatefulWidget {
-
   final int? subcategoryId;
+  final int? categoryId; 
 
-  const ProductListScreen({Key? key, this.subcategoryId}) : super(key: key);
+  const ProductListScreen({Key? key, this.subcategoryId, this.categoryId}) : super(key: key);
 
   @override
   _ProductListScreenState createState() => _ProductListScreenState();
@@ -21,9 +21,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
-    final productController =
-        Provider.of<ProductController>(context, listen: false);
-    if (widget.subcategoryId != null) {
+    final productController = Provider.of<ProductController>(context, listen: false);
+    if (widget.categoryId != null) {
+      productController.loadProductsByCategory(widget.categoryId!);
+    } else if (widget.subcategoryId != null) {
       productController.loadProductsBySubcategory(widget.subcategoryId!);
     } else {
       productController.loadProducts();
@@ -60,7 +61,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
           );
         },
       ),
-
       floatingActionButton: userRole == "Client"
           ? FloatingActionButton(
               onPressed: () {
